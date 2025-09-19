@@ -141,7 +141,7 @@ This tool simplifies the process of collecting customer feedback and ratings by 
 ![App Screenshot](screenshots/6.png)
 ![App Screenshot](screenshots/7.jpg)
 
-** نمونه هدایت مستقیم لینک هوشمند به صفحه ثبت امتیاز **
+**نمونه هدایت مستقیم لینک هوشمند به صفحه ثبت امتیاز**
 ![App Screenshot](screenshots/5.png)
 
 ---
@@ -170,5 +170,5 @@ For inquiries, collaborations, or custom integrations, please contact:
 متخصص در طراحی **داشبوردهای یکپارچه BI، خطوط داده (Data Pipelines) و سیستم‌های اتوماسیون فرآیندها** برای کارکنان و کسب‌وکارها.  
 برای پرسش‌ها، همکاری‌ها یا یکپارچه‌سازی‌های سفارشی، لطفاً تماس بگیرید:
 
-📧 [imshahineskandari@gmail.com] (mailto:imshahineskandari@gmail.com)
+📧 [imshahineskandari@gmail.com]
 🌐 [linkedin.com/in/shahin-eskandari](https://www.linkedin.com/in/shahin-eskandari/)
