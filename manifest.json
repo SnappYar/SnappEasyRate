@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "SnappEasyRate",
+  "version": "2.1.0",
+  "description": "ثبت نظرات و امتیاز مشتریان در اسنپ‌فود، سریع، آسان با لینک هشومند، تنها با یک کلیک",
+  "author": "Shahin Eskandari",
+  "homepage_url": "https://github.com/shahineskandari/SnappEasyRate",
+  "action": {
+    "default_title": "SnappEasyRate",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png",
+      "256": "icons/icon256.png"
+    }
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": [
+        "libs/jalaali.js",
+        "content-script.js"
+      ]
+    }
+  ]
+}

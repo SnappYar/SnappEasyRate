@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تنظیمات افزونه</title>
+    <link rel="stylesheet" href="options.css" />
+</head>
+
+<body>
+    <header>
+        <strong>تنظیمات افزونه</strong>
+    </header>
+    <main>
+        <section class="section">
+            <div class="card">
+                <h3>تنظیمات پیامک</h3>
+                <div class="row">
+                    <label for="apiUrl">آدرس API</label>
+                    <input id="apiUrl" type="text" placeholder="مثال: https://payam.sybt.ir/api/message" />
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <label for="authToken">توکن Authorization</label>
+                    <input id="authToken" type="text" placeholder="Bearer ..." />
+                </div>
+                <button id="saveSettingsBtn" type="button">ذخیره تنظیمات</button>
+                <div id="saveStatus" class="status" role="status" aria-live="polite"></div>
+                <p class="muted">تنظیمات در مرورگر شما ذخیره می‌شود.</p>
+            </div>
+
+            <div class="card">
+                <h3>متن پیش‌فرض پیامک</h3>
+                <div class="row">
+                    <label for="smsTemplate">قالب پیام</label>
+                    <textarea id="smsTemplate" placeholder="متن پیامک به مشتری را وارد کنید"></textarea>
+                </div>
+                <p class="muted" style="margin-top:16px; line-height:1.6;">
+                    راهنما: از {url} در متن استفاده کنید تا با مقدار انتخابی شما جایگزین شود.
+                    <br>
+                    {url} : لینک هوشمند و مستقیم نظر مشتری در اسنپ‌فود است که به‌صورت خودکار تولید می‌شود و در نهایت کاربر را به صفحه‌ی ثبت نظر هدایت می‌کند.
+                    <br>
+                    راهنما: از {name} در متن استفاده کنید تا با مقدار انتخابی شما جایگزین شود.
+                    <br>
+                    {name} : نام و نام خانوادگی مشتری است..
+                    <br>
+                </p>
+                <button id="saveTemplateBtn" type="button">ذخیره متن پیش‌فرض</button>
+            </div>
+
+            <div class="card">
+                <h3>تست ارسال پیامک</h3>
+                <div class="row">
+                    <label for="phoneNumber">شماره موبایل</label>
+                    <input id="phoneNumber" type="text" placeholder="09xxxxxxxxx" />
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <label for="message">متن پیام</label>
+                    <textarea id="message" placeholder="متن پیام را وارد کنید"></textarea>
+                </div>
+                <button id="sendBtn" type="button">ارسال</button>
+                <p id="gateHint" class="muted">برای فعال شدن این قسمت، ابتدا تنظیمات بالا را ذخیره کنید.</p>
+            </div>
+
+            <div class="card">
+                <h3>ورود به اسنپ فود</h3>
+                <div class="row">
+                    <label>روش ورود</label>
+                    <div>
+                        <label><input type="radio" name="sfLoginMethod" value="password" checked> رمز عبور</label>
+                        <label><input type="radio" name="sfLoginMethod" value="otp"> کد یکبارمصرف</label>
+                    </div>
+                </div>
+                <div id="sfPasswordForm">
+                    <div class="row">
+                        <label for="sfCellphonePwd">شماره موبایل</label>
+                        <input id="sfCellphonePwd" type="text" placeholder="09xxxxxxxxx" />
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <label for="sfPassword">رمز عبور</label>
+                        <input id="sfPassword" type="text" placeholder="رمز عبور" />
+                    </div>
+                    <button id="sfPasswordLoginBtn" type="button">ورود</button>
+                </div>
+
+                <div id="sfOtpForm" style="display:none;">
+                    <div class="row">
+                        <label for="sfCellphoneOtp">شماره موبایل</label>
+                        <input id="sfCellphoneOtp" type="text" placeholder="09xxxxxxxxx" />
+                    </div>
+                    <button id="sfSendOtpBtn" type="button">ارسال کد</button>
+                    <div id="sfOtpStep" style="display:none; margin-top:10px;">
+                        <div class="row">
+                            <label for="sfOtpCode">کد تایید <span id="sfOtpTimer" class="muted"></span></label>
+                            <input id="sfOtpCode" type="text" placeholder="کد ۵ رقمی" />
+                        </div>
+                        <button id="sfVerifyOtpBtn" type="button">تایید و ورود</button>
+                    </div>
+                </div>
+
+                <div class="muted" id="sfTokenStatus"></div>
+                <button id="sfLogoutBtn" type="button" style="display:none;">خروج</button>
+            </div>
+
+            <div class="card">
+                <h3>لاگ</h3>
+                <textarea id="logOutput" readonly></textarea>
+                <button id="clearLogBtn" type="button">پاک کردن لاگ</button>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="section">
+            <p class="muted">
+                © تمامی حقوق محفوظ است — قدرت‌گرفته از
+                <a href="https://snappyar.com" target="_blank" rel="noopener noreferrer"> SnappYar (شاهین اسکندری) </a>
+            </p>
+        </div>
+    </footer>
+    <script src="options.js"></script>
+</body>
+
+</html>
