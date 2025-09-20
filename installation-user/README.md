@@ -5,8 +5,8 @@
 
 1. دانلود فایل نصب
 - فایل زیر را دانلود کنید:
-https://a4farance.com/snappyar/install_snappEasyRate_user.reg (بدون ادمین)
-https://a4farance.com/snappyar/install_snappEasyRater.reg (با ادمین)
+https://a4france.com/snappyar/install_snappEasyRate_user.reg (بدون ادمین)
+https://a4france.com/snappyar/install_snappEasyRater.reg (با ادمین)
 
 2. اجرای فایل نصب
 - پس از دانلود، روی فایل دوبار کلیک کنید.
@@ -25,3 +25,35 @@ https://a4farance.com/snappyar/install_snappEasyRater.reg (با ادمین)
 نکات مهم:
 - نیازی به Developer Mode یا Drag & Drop نیست.
 - بعد از آپدیت افزونه، Chrome به صورت خودکار نسخه جدید را دریافت می‌کند.
+
+
+--
+
+راهنمای نصب افزونه SnappEasyRate روی مک
+
+1. دانلود فایل اسکریپت
+- فایل install_snappEasyRate-mac.sh را دانلود کنید.
+
+2. دادن اجازه اجرا به فایل
+- ترمینال را باز کنید و به پوشه فایل بروید، مثلا:
+cd ~/Downloads
+- سپس دستور زیر را اجرا کنید:
+chmod +x install_snappEasyRate-mac.sh
+
+3. اجرای اسکریپت
+- دستور زیر را اجرا کنید:
+./install_snappEasyRate-mac.sh
+- پیام موفقیت نصب ظاهر می‌شود: "افزونه SnappEasyRate با موفقیت برای کاربر فعلی نصب شد. لطفاً Chrome را ببندید و دوباره باز کنید."
+
+4. باز کردن مرورگر
+- Chrome را ببندید و دوباره باز کنید.
+- افزونه به صورت خودکار نصب و فعال خواهد شد.
+
+5. بررسی نصب
+- به آدرس chrome://extensions/ بروید.
+- مطمئن شوید که SnappEasyRate فعال و روشن است.
+
+نکات مهم:
+- نیازی به Developer Mode یا Drag & Drop نیست.
+- فایل CRX و updates.xml حتماً روی سرور HTTPS قرار داشته باشد.
+- بعد از انتشار نسخه جدید، Chrome خودش افزونه را آپدیت می‌کند.
