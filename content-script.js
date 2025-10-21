@@ -64,6 +64,7 @@
             btn.style.color = '#ffffff';
             btn.style.cursor = 'pointer';
             btn.style.whiteSpace = 'nowrap';
+            btn.disabled = false;
             // Enable only if trackingCode is exactly "snappfood"
             const trackingRaw = trackingCodeCell ? (trackingCodeCell.innerText || '').trim() : '';
             const trackingNorm = trackingRaw.toLowerCase();
@@ -75,13 +76,13 @@
             }
             btn.addEventListener('click', async () => {
                 if (btn.disabled) return;
+                console.log('SMS button clicked');
                 const firstName = firstNameCell.innerText.replace(/\s+/g, ' ').trim();
                 const price = priceCell.innerText.replace(/\s+/g, ' ').trim();
                 const vUserName = (vUserNameCell.innerText || '').replace(/\s+/g, ' ').trim();
                 const trackingCode = trackingCodeCell.innerText.replace(/\s+/g, ' ').trim();
                 const branchName = branchNameCell ? getOwnText(branchNameCell) : '';
                 const dateTime = dateTimeCell ? getOwnText(dateTimeCell) : '';
-
                 function normalize(str) { return (str || '').replace(/[\u200c\u200f\u202a-\u202e]/g, '').replace(/\s+/g, ' ').trim(); }
                 function normalizeSnappfoodToken(raw) {
                     if (!raw) return '';
@@ -116,7 +117,10 @@
                         }
                         const vendorId = match ? match.id : '';
 
-                        const token = normalizeSnappfoodToken(data['sf_token']);
+                        const token = `Bearer ${data['sf_token']}`;
+                        // console.log('normalize(branchName):', normalize(branchName));
+                        // console.log('sf_token:', token);
+                        // console.log('vendorId:', vendorId);
 
                         if (vendorId && token && dateTimeG) {
                             const start = `${dateTimeG} 00:00:00`;
@@ -126,14 +130,14 @@
                                 type: 'SF_FETCH',
                                 url,
                                 method: 'GET',
-                                headers: { Authorization: `Bearer ${token}` }
+                                headers: { Authorization: token }
                             });
                             if (!ok) {
                                 console.log('fetch error:', status, error || text);
                             } else {
                                 let response = {};
                                 try { response = JSON.parse(text) || {}; } catch (_) { }
-                                //console.log('API response:', response);
+                                // console.log('API response:', response);
 
                                 // Handle different response structures
                                 let orders = [];
@@ -146,7 +150,7 @@
                                 }
 
                                 const target = orders.find(x => normalize(x?.attributes?.customerName) === normalize(firstName));
-                                // console.log({ firstName, price, vUserName, trackingCode, branchName, vendorId, dateTimeG, matchedOrder: target || null, totalOrders: orders.length });
+                                console.log({ firstName, price, vUserName, trackingCode, branchName, vendorId, dateTimeG, matchedOrder: target || null, totalOrders: orders.length });
 
                                 if (!target?.attributes?.code) {
                                     btn.textContent = 'انجام نشد!';
@@ -154,10 +158,17 @@
                                     return;
                                 }
 
-                                const URL_OVERRIDE_FOR_TEMPLATE = `https://link.sib360.com/${target.attributes.code}`;
+                                const targetCode = target?.attributes?.code;
+                                console.log('targetCode:', targetCode);
+
+                                const URL_OVERRIDE_FOR_TEMPLATE = `https://link.sib360.com/${targetCode}`;
                                 chrome.storage.sync.get(['sms_template'], (d) => {
                                     const tpl = typeof d['sms_template'] === 'string' ? d['sms_template'] : '';
-                                    if (!tpl) return;
+                                    if (!tpl) {
+                                        btn.textContent = 'متن پیامک تنظیم نشده است!';
+                                        btn.disabled = false;
+                                        return;
+                                    }
                                     let smsText = tpl.replace(/\{url\}/g, URL_OVERRIDE_FOR_TEMPLATE || '{url}');
                                     smsText = smsText.replace(/\{name\}/g, firstName || '{name}');
                                     console.log('SMS text preview:', smsText);
@@ -165,16 +176,16 @@
                                     // Prepare to send SMS: add a leading 0 to vUserName
                                     const phone = vUserName ? ('0' + vUserName.replace(/^0+/, '')) : '';
                                     if (!phone) {
-                                        btn.textContent = 'انجام نشد!';
+                                        btn.textContent = 'شماره مشتری تنظیم نشده است!';
                                         btn.disabled = false;
                                         return;
                                     }
 
-                                    chrome.storage.sync.get(['sms_api_url','sms_auth_token'], async (cfg) => {
+                                    chrome.storage.sync.get(['sms_api_url', 'sms_auth_token'], async (cfg) => {
                                         const apiUrl = cfg['sms_api_url'] || '';
                                         const authToken = cfg['sms_auth_token'] || '';
                                         if (!apiUrl || !authToken) {
-                                            btn.textContent = 'انجام نشد!';
+                                            btn.textContent = 'API URL یا توکن تنظیم نشده است!';
                                             btn.disabled = false;
                                             return;
                                         }

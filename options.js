@@ -193,12 +193,12 @@
     }
 
     async function fetchSnappfoodVendors({ token }) {
-        const bearer = normalizeSnappfoodToken(token);
+        const bearer = `Bearer ${token}`;
         if (!bearer) throw new Error('توکن اسنپ\fفود موجود نیست یا معتبر نیست');
         const res = await fetch('https://vendor.snappfood.ir/vms/v2/user/vendors', {
             method: 'GET',
             headers: {
-                'Authorization': `Bearer ${bearer}`,
+                'Authorization': bearer,
                 'Accept': 'application/json'
             }
         });

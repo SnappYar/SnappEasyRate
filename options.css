@@ -64,6 +64,14 @@ input[type="text"] {
     box-sizing: border-box;
 }
 
+input[type="password"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
 button {
     margin-top: 12px;
     padding: 8px 12px;
