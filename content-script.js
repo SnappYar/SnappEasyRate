@@ -150,7 +150,7 @@
                                 }
 
                                 const target = orders.find(x => normalize(x?.attributes?.customerName) === normalize(firstName));
-                                console.log({ firstName, price, vUserName, trackingCode, branchName, vendorId, dateTimeG, matchedOrder: target || null, totalOrders: orders.length });
+                                // console.log({ firstName, price, vUserName, trackingCode, branchName, vendorId, dateTimeG, matchedOrder: target || null, totalOrders: orders.length });
 
                                 if (!target?.attributes?.code) {
                                     btn.textContent = 'انجام نشد!';
