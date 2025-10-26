@@ -163,9 +163,8 @@
             const dateTimeCell = row.querySelector('td[data-name="DateTime"]');
             if (!firstNameCell || !priceCell || !vUserNameCell || !trackingCodeCell) return;
             
-            // Get OrderID from first td (first column)
-            const orderIdCell = row.querySelector('td:first-child');
-            const orderId = orderIdCell ? orderIdCell.innerText.trim() : '';
+            // Get OrderID from data-id attribute
+            const orderId = row.getAttribute('data-id') || '';
             // console.log('OrderID found:', orderId);
 
             // Avoid duplicate cells
