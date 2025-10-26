@@ -233,118 +233,144 @@
                             const vendorId = match ? match.id : '';
 
                             const token = `Bearer ${data['sf_token']}`;
-                            console.log('normalize(branchName):', normalize(branchName));
-                            console.log('sf_token:', token);
-                            console.log('vendorId:', vendorId);
+                            // console.log('normalize(branchName):', normalize(branchName));
+                            // console.log('sf_token:', token);
+                            // console.log('vendorId:', vendorId);
 
-                            if (vendorId && token && dateTimeG) {
-                                const start = `${dateTimeG} 00:00:00`;
-                                const end = `${dateTimeG} 23:59:00`;
-                                const url = `https://vendor.snappfood.ir/vms/v2/order/list?vendorId=${encodeURIComponent(vendorId)}&pageSize=20&startDate=${encodeURIComponent(start)}&endDate=${encodeURIComponent(end)}&page=0`;
-                                const { ok, status, text, error } = await chrome.runtime.sendMessage({
-                                    type: 'SF_FETCH',
-                                    url,
-                                    method: 'GET',
-                                    headers: { Authorization: token }
-                                });
-                                if (!ok) {
-                                    showToast(`خطا در دریافت سفارشات: ${status} - ${decodeUnicode(error) || text}`, 'error');
-                                    btn.textContent = 'خطا در دریافت سفارشات';
-                                    btn.disabled = false;
-                                    return;
-                                } else {
-                                    let response = {};
-                                    try { response = JSON.parse(text) || {}; } catch (_) { }
-                                    console.log('API response:', response);
+                             if (vendorId && token && dateTimeG) {
+                                 const start = `${dateTimeG} 00:00:00`;
+                                 const end = `${dateTimeG} 23:59:00`;
+                                 
+                                 // Search through all pages until user is found
+                                 let target = null;
+                                 let page = 0;
+                                 const pageSize = 20;
+                                 
+                                 while (true) {
+                                     const url = `https://vendor.snappfood.ir/vms/v2/order/list?vendorId=${encodeURIComponent(vendorId)}&pageSize=${pageSize}&startDate=${encodeURIComponent(start)}&endDate=${encodeURIComponent(end)}&page=${page}`;
+                                     const { ok, status, text, error } = await chrome.runtime.sendMessage({
+                                         type: 'SF_FETCH',
+                                         url,
+                                         method: 'GET',
+                                         headers: { Authorization: token }
+                                     });
+                                     
+                                     if (!ok) {
+                                         showToast(`خطا در دریافت سفارشات: ${status} - ${decodeUnicode(error) || text}`, 'error');
+                                         btn.textContent = 'خطا در دریافت سفارشات';
+                                         btn.disabled = false;
+                                         return;
+                                     }
+                                     
+                                     let response = {};
+                                     try { response = JSON.parse(text) || {}; } catch (_) { }
+                                     
+                                     // Handle different response structures
+                                     let orders = [];
+                                     if (Array.isArray(response)) {
+                                         orders = response;
+                                     } else if (Array.isArray(response.data)) {
+                                         orders = response.data;
+                                     } else if (Array.isArray(response.included)) {
+                                         orders = response.included.filter(item => item.type === 'order');
+                                     }
+                                     
+                                     // Check if we found the user in this page
+                                     target = orders.find(x => normalize(x?.attributes?.customerName) === normalize(firstName));
+                                     
+                                     if (target?.attributes?.code) {
+                                         // User found! Break the loop
+                                         break;
+                                     }
+                                     
+                                     // If no orders returned or empty array, we've reached the end
+                                     if (!orders || orders.length === 0) {
+                                         break;
+                                     }
+                                     
+                                     // Move to next page
+                                     page++;
+                                     
+                                     // Safety check: don't search more than 50 pages
+                                     if (page > 50) {
+                                         break;
+                                     }
+                                 }
 
-                                    // Handle different response structures
-                                    let orders = [];
-                                    if (Array.isArray(response)) {
-                                        orders = response;
-                                    } else if (Array.isArray(response.data)) {
-                                        orders = response.data;
-                                    } else if (Array.isArray(response.included)) {
-                                        orders = response.included.filter(item => item.type === 'order');
+                                 if (!target?.attributes?.code) {
+                                     showToast(`خطا: سفارش برای ${firstName} پیدا نشد`, 'error');
+                                     btn.textContent = 'سفارش پیدا نشد';
+                                     btn.disabled = false;
+                                     return;
+                                 }
+
+                                const targetCode = target?.attributes?.code;
+                                // console.log('targetCode:', targetCode);
+
+                                const URL_OVERRIDE_FOR_TEMPLATE = `https://link.sib360.com/${targetCode}`;
+                                chrome.storage.sync.get(['sms_template'], (d) => {
+                                    const tpl = typeof d['sms_template'] === 'string' ? d['sms_template'] : '';
+                                    if (!tpl) {
+                                        showToast('خطا: متن پیامک تنظیم نشده است - لطفاً در تنظیمات متن پیامک را وارد کنید', 'error');
+                                        btn.textContent = 'متن تنظیم نشده';
+                                        btn.disabled = false;
+                                        return;
                                     }
+                                    let smsText = tpl.replace(/\{url\}/g, URL_OVERRIDE_FOR_TEMPLATE || '{url}');
+                                    smsText = smsText.replace(/\{name\}/g, firstName || '{name}');
+                                    // console.log('SMS text preview:', smsText);
 
-                                    const target = orders.find(x => normalize(x?.attributes?.customerName) === normalize(firstName));
-                                    // console.log({ firstName, price, vUserName, trackingCode, branchName, vendorId, dateTimeG, matchedOrder: target || null, totalOrders: orders.length });
-
-                                    if (!target?.attributes?.code) {
-                                        showToast(`خطا: سفارش برای ${firstName} پیدا نشد`, 'error');
-                                        btn.textContent = 'سفارش پیدا نشد';
+                                    // Prepare to send SMS: add a leading 0 to vUserName
+                                    const phone = vUserName ? ('0' + vUserName.replace(/^0+/, '')) : '';
+                                    if (!phone) {
+                                        showToast('خطا: شماره مشتری موجود نیست', 'error');
+                                        btn.textContent = 'شماره موجود نیست';
                                         btn.disabled = false;
                                         return;
                                     }
 
-                                    const targetCode = target?.attributes?.code;
-                                    console.log('targetCode:', targetCode);
-
-                                    const URL_OVERRIDE_FOR_TEMPLATE = `https://link.sib360.com/${targetCode}`;
-                                    chrome.storage.sync.get(['sms_template'], (d) => {
-                                        const tpl = typeof d['sms_template'] === 'string' ? d['sms_template'] : '';
-                                        if (!tpl) {
-                                            showToast('خطا: متن پیامک تنظیم نشده است - لطفاً در تنظیمات متن پیامک را وارد کنید', 'error');
-                                            btn.textContent = 'متن تنظیم نشده';
+                                    chrome.storage.sync.get(['sms_api_url', 'sms_auth_token'], async (cfg) => {
+                                        const apiUrl = cfg['sms_api_url'] || '';
+                                        const authToken = cfg['sms_auth_token'] || '';
+                                        if (!apiUrl || !authToken) {
+                                            showToast('خطا: API URL یا توکن تنظیم نشده است - لطفاً در تنظیمات API را وارد کنید', 'error');
+                                            btn.textContent = 'API تنظیم نشده';
                                             btn.disabled = false;
                                             return;
                                         }
-                                        let smsText = tpl.replace(/\{url\}/g, URL_OVERRIDE_FOR_TEMPLATE || '{url}');
-                                        smsText = smsText.replace(/\{name\}/g, firstName || '{name}');
-                                        console.log('SMS text preview:', smsText);
-
-                                        // Prepare to send SMS: add a leading 0 to vUserName
-                                        const phone = vUserName ? ('0' + vUserName.replace(/^0+/, '')) : '';
-                                        if (!phone) {
-                                            showToast('خطا: شماره مشتری موجود نیست', 'error');
-                                            btn.textContent = 'شماره موجود نیست';
-                                            btn.disabled = false;
-                                            return;
-                                        }
-
-                                        chrome.storage.sync.get(['sms_api_url', 'sms_auth_token'], async (cfg) => {
-                                            const apiUrl = cfg['sms_api_url'] || '';
-                                            const authToken = cfg['sms_auth_token'] || '';
-                                            if (!apiUrl || !authToken) {
-                                                showToast('خطا: API URL یا توکن تنظیم نشده است - لطفاً در تنظیمات API را وارد کنید', 'error');
-                                                btn.textContent = 'API تنظیم نشده';
+                                        try {
+                                            const payload = {
+                                                ProviderId: 1,
+                                                Number: phone,
+                                                Message: smsText
+                                            };
+                                            const { ok, status, text, error } = await chrome.runtime.sendMessage({
+                                                type: 'SF_FETCH',
+                                                url: apiUrl,
+                                                method: 'POST',
+                                                headers: { 'Authorization': authToken, 'Content-Type': 'application/json' },
+                                                body: payload
+                                            });
+                                            if (!ok || (status && status >= 300)) {
+                                                showToast(`خطا در ارسال پیامک: ${status} - ${decodeUnicode(error) || text}`, 'error');
+                                                btn.textContent = 'ارسال ناموفق';
                                                 btn.disabled = false;
-                                                return;
-                                            }
-                                            try {
-                                                const payload = {
-                                                    ProviderId: 1,
-                                                    Number: phone,
-                                                    Message: smsText
-                                                };
-                                                const { ok, status, text, error } = await chrome.runtime.sendMessage({
-                                                    type: 'SF_FETCH',
-                                                    url: apiUrl,
-                                                    method: 'POST',
-                                                    headers: { 'Authorization': authToken, 'Content-Type': 'application/json' },
-                                                    body: payload
-                                                });
-                                                if (!ok || (status && status >= 300)) {
-                                                    showToast(`خطا در ارسال پیامک: ${status} - ${decodeUnicode(error) || text}`, 'error');
-                                                    btn.textContent = 'ارسال ناموفق';
-                                                    btn.disabled = false;
-                                                } else {
-                                                    showToast(`پیامک با موفقیت به ${phone} ارسال شد`, 'success');
-                                                    btn.textContent = `ارسال شد!`;
-                                                    btn.disabled = true;
-                                                    // Save to localStorage
-                                                    if (orderId) {
-                                                        saveSentSMS(orderId, 'sms');
-                                                    }
+                                            } else {
+                                                showToast(`پیامک با موفقیت به ${phone} ارسال شد`, 'success');
+                                                btn.textContent = `ارسال شد!`;
+                                                btn.disabled = true;
+                                                // Save to localStorage
+                                                if (orderId) {
+                                                    saveSentSMS(orderId, 'sms');
                                                 }
-                                            } catch (e) {
-                                                showToast(`خطا در ارسال پیامک: ${e.message || e}`, 'error');
-                                                btn.textContent = 'خطا در ارسال';
-                                                btn.disabled = false;
                                             }
-                                        });
+                                        } catch (e) {
+                                            showToast(`خطا در ارسال پیامک: ${e.message || e}`, 'error');
+                                            btn.textContent = 'خطا در ارسال';
+                                            btn.disabled = false;
+                                        }
                                     });
-                                }
+                                });
                             } else {
                                 //console.log({ firstName, price, vUserName, trackingCode, branchName, vendorId, dateTimeG, note: 'vendorId/token/dateTimeG missing' });
                             }
@@ -421,7 +447,7 @@
                         }
                         let smsText = tpl.replace(/\{url\}/g, URL_OVERRIDE_FOR_TEMPLATE || '{url}');
                         smsText = smsText.replace(/\{name\}/g, firstName || '{name}');
-                        console.log('Aggregate SMS text preview:', smsText);
+                        // console.log('Aggregate SMS text preview:', smsText);
 
                         // Prepare to send SMS: add a leading 0 to vUserName
                         const phone = vUserName ? ('0' + vUserName.replace(/^0+/, '')) : '';
