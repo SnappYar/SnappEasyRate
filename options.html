@@ -16,96 +16,120 @@
         <section class="section">
             <div class="card">
                 <h3>تنظیمات پیامک</h3>
-                <div class="row">
+                <div class="form-group">
                     <label for="apiUrl">آدرس API</label>
-                    <input id="apiUrl" type="text" placeholder="مثال: https://payam.sybt.ir/api/message" />
+                    <input id="apiUrl" type="text" class="input" placeholder="مثال: https://payam.sybt.ir/api/message" />
                 </div>
-                <div class="row" style="margin-top:10px;">
+                <div class="form-group">
                     <label for="authToken">توکن Authorization</label>
-                    <input id="authToken" type="password" placeholder="Bearer ..." />
+                    <input id="authToken" type="password" class="input" placeholder="Bearer ..." />
                 </div>
-                <button id="saveSettingsBtn" type="button">ذخیره تنظیمات</button>
+                <button id="saveSettingsBtn" type="button" class="btn btn-primary">ذخیره تنظیمات</button>
                 <div id="saveStatus" class="status" role="status" aria-live="polite"></div>
                 <p class="muted">تنظیمات در مرورگر شما ذخیره می‌شود.</p>
             </div>
 
             <div class="card">
-                <h3>متن پیش‌فرض پیامک</h3>
-                <div class="row">
-                    <label for="smsTemplate">قالب پیام</label>
-                    <textarea id="smsTemplate" placeholder="متن پیامک به مشتری را وارد کنید"></textarea>
+                <h3>متن پیش‌فرض پیامک <span class="card-badge">حساس به آدرس</span></h3>
+                <div class="form-group">
+                    <label for="domainSelect">قالب برای آدرس</label>
+                    <div class="domain-toolbar">
+                        <select id="domainSelect" class="input">
+                            <option value="">پیش‌فرض (همهٔ آدرس‌ها)</option>
+                        </select>
+                        <input id="newDomainInput" type="text" class="input" placeholder="آدرس جدید مثلاً rasperwings.com" />
+                        <button id="addDomainBtn" type="button" class="btn btn-outline" style="margin-top: 0;">افزودن آدرس</button>
+                    </div>
                 </div>
-                <p class="muted" style="margin-top:16px; line-height:1.6;">
-                    راهنما: از {url} در متن استفاده کنید تا با مقدار انتخابی شما جایگزین شود.
-                    <br>
-                    {url} : لینک هوشمند و مستقیم نظر مشتری در اسنپ‌فود است که به‌صورت خودکار تولید می‌شود و در نهایت کاربر را به صفحه‌ی ثبت نظر هدایت می‌کند.
-                    <br>
-                    راهنما: از {name} در متن استفاده کنید تا با مقدار انتخابی شما جایگزین شود.
-                    <br>
-                    {name} : نام و نام خانوادگی مشتری است..
-                    <br>
+                <div class="form-group">
+                    <label for="linkBaseInput">پایهٔ لینک برای این آدرس (اختیاری)</label>
+                    <input id="linkBaseInput" type="text" class="input" placeholder="مثال: https://link.sib360.com یا https://link.rasperwings.com" />
+                </div>
+                <div class="form-group">
+                    <label for="smsTemplate">قالب پیام</label>
+                    <textarea id="smsTemplate" class="input" placeholder="متن پیامک به مشتری را وارد کنید"></textarea>
+                </div>
+                <p class="muted help-block">
+                    از <code>{url}</code> برای لینک نظر اسنپ‌فود و از <code>{name}</code> برای نام مشتری استفاده کنید. هر آدرس می‌تواند متن و پایهٔ لینک مخصوص خود را داشته باشد.
                 </p>
-                <button id="saveTemplateBtn" type="button">ذخیره متن پیش‌فرض</button>
+                <button id="saveTemplateBtn" type="button" class="btn btn-primary">ذخیره متن پیش‌فرض برای این آدرس</button>
+
+                <div class="form-group" style="margin-top:var(--space-xl);">
+                    <label>لیست قالب‌های ذخیره‌شده</label>
+                    <ul id="savedTemplatesList" class="saved-templates-list"></ul>
+                </div>
             </div>
 
             <div class="card">
                 <h3>تست ارسال پیامک</h3>
-                <div class="row">
+                <div class="form-group">
                     <label for="phoneNumber">شماره موبایل</label>
-                    <input id="phoneNumber" type="text" placeholder="09xxxxxxxxx" />
+                    <input id="phoneNumber" type="text" class="input" placeholder="09xxxxxxxxx" />
                 </div>
-                <div class="row" style="margin-top:10px;">
+                <div class="form-group">
                     <label for="message">متن پیام</label>
-                    <textarea id="message" placeholder="متن پیام را وارد کنید"></textarea>
+                    <textarea id="message" class="input" placeholder="متن پیام را وارد کنید"></textarea>
                 </div>
-                <button id="sendBtn" type="button">ارسال</button>
+                <button id="sendBtn" type="button" class="btn btn-primary">ارسال</button>
                 <p id="gateHint" class="muted">برای فعال شدن این قسمت، ابتدا تنظیمات بالا را ذخیره کنید.</p>
             </div>
 
-            <div class="card">
-                <h3>ورود به اسنپ فود</h3>
+            <div class="card card-snappfood">
+                <h3>ورود به اسنپ‌فود <span class="card-badge">حساس به آدرس</span></h3>
+                <div class="form-group">
+                    <label for="sfDomainSelect">ورود برای آدرس</label>
+                    <select id="sfDomainSelect" class="input">
+                        <option value="">پیش‌فرض (همهٔ آدرس‌ها)</option>
+                    </select>
+                    <p class="help">حساب اسنپ‌فود برای هر آدرس (مثلاً rasperwings.com و sib360.com) جدا ذخیره می‌شود.</p>
+                </div>
                 <div class="row">
                     <label>روش ورود</label>
-                    <div>
-                        <label><input type="radio" name="sfLoginMethod" value="password" checked> رمز عبور</label>
-                        <label><input type="radio" name="sfLoginMethod" value="otp"> کد یکبارمصرف</label>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="sfLoginMethod" value="password" checked> رمز عبور</label>
+                        <label class="radio-label"><input type="radio" name="sfLoginMethod" value="otp"> کد یک‌بارمصرف</label>
                     </div>
                 </div>
-                <div id="sfPasswordForm">
+                <div id="sfPasswordForm" class="form-group">
                     <div class="row">
                         <label for="sfCellphonePwd">شماره موبایل</label>
-                        <input id="sfCellphonePwd" type="text" placeholder="09xxxxxxxxx" />
+                        <input id="sfCellphonePwd" type="text" class="input" placeholder="09xxxxxxxxx" />
                     </div>
-                    <div class="row" style="margin-top:10px;">
+                    <div class="row">
                         <label for="sfPassword">رمز عبور</label>
-                        <input id="sfPassword" type="password" placeholder="رمز عبور" />
+                        <input id="sfPassword" type="password" class="input" placeholder="رمز عبور" />
                     </div>
-                    <button id="sfPasswordLoginBtn" type="button">ورود</button>
+                    <button id="sfPasswordLoginBtn" type="button" class="btn btn-primary">ورود</button>
                 </div>
 
-                <div id="sfOtpForm" style="display:none;">
+                <div id="sfOtpForm" class="form-group" style="display:none;">
                     <div class="row">
                         <label for="sfCellphoneOtp">شماره موبایل</label>
-                        <input id="sfCellphoneOtp" type="text" placeholder="09xxxxxxxxx" />
+                        <input id="sfCellphoneOtp" type="text" class="input" placeholder="09xxxxxxxxx" />
                     </div>
-                    <button id="sfSendOtpBtn" type="button">ارسال کد</button>
-                    <div id="sfOtpStep" style="display:none; margin-top:10px;">
+                    <button id="sfSendOtpBtn" type="button" class="btn btn-primary">ارسال کد</button>
+                    <div id="sfOtpStep" style="display:none; margin-top:12px;">
                         <div class="row">
                             <label for="sfOtpCode">کد تایید <span id="sfOtpTimer" class="muted"></span></label>
-                            <input id="sfOtpCode" type="text" placeholder="کد ۵ رقمی" />
+                            <input id="sfOtpCode" type="text" class="input" placeholder="کد ۵ رقمی" />
                         </div>
-                        <button id="sfVerifyOtpBtn" type="button">تایید و ورود</button>
+                        <button id="sfVerifyOtpBtn" type="button" class="btn btn-primary">تایید و ورود</button>
                     </div>
                 </div>
 
-                <div class="muted" id="sfTokenStatus"></div>
-                <button id="sfLogoutBtn" type="button" style="display:none;">خروج</button>
+                <div id="sfTokenStatus" class="status-block"></div>
+                <button id="sfLogoutBtn" type="button" class="btn btn-outline" style="display:none;">خروج از این آدرس</button>
+
+                <div class="form-group" style="margin-top:20px;">
+                    <label>حساب‌های متصل (هر آدرس جدا)</label>
+                    <ul id="sfAccountsList" class="accounts-list"></ul>
+                </div>
             </div>
 
             <div class="card">
                 <h3>لاگ</h3>
-                <textarea id="logOutput" readonly></textarea>
-                <button id="clearLogBtn" type="button">پاک کردن لاگ</button>
+                <textarea id="logOutput" readonly class="input"></textarea>
+                <button id="clearLogBtn" type="button" class="btn btn-outline">پاک کردن لاگ</button>
             </div>
         </section>
     </main>

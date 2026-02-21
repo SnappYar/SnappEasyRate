@@ -220,9 +220,13 @@
                     const dateTimeG = jalaliToGregorian(dateTime);
 
                     const prevText = btn.textContent; btn.disabled = true; btn.textContent = 'در حال پردازش...';
-                    chrome.storage.sync.get(['sf_vendors', 'sf_token'], async (data) => {
+                    const hostnameForSF = (window.location.hostname || '').replace(/^www\./, '') || '';
+                    chrome.storage.sync.get(['sf_vendors', 'sf_token', 'sf_vendors_by_domain', 'sf_token_by_domain'], async (data) => {
                         try {
-                            const vendors = Array.isArray(data['sf_vendors']) ? data['sf_vendors'] : [];
+                            const byVendors = (data['sf_vendors_by_domain'] && typeof data['sf_vendors_by_domain'] === 'object') ? data['sf_vendors_by_domain'] : {};
+                            const byToken = (data['sf_token_by_domain'] && typeof data['sf_token_by_domain'] === 'object') ? data['sf_token_by_domain'] : {};
+                            const vendors = (hostnameForSF && Array.isArray(byVendors[hostnameForSF])) ? byVendors[hostnameForSF] : (Array.isArray(byVendors['']) ? byVendors[''] : (Array.isArray(data['sf_vendors']) ? data['sf_vendors'] : []));
+                            const tokenRaw = (hostnameForSF && byToken[hostnameForSF] !== undefined) ? byToken[hostnameForSF] : (byToken[''] !== undefined ? byToken[''] : data['sf_token'] || '');
                             const bn = normalize(branchName);
                             let match = null;
                             for (const v of vendors) {
@@ -232,7 +236,7 @@
                             }
                             const vendorId = match ? match.id : '';
 
-                            const token = `Bearer ${data['sf_token']}`;
+                            const token = `Bearer ${tokenRaw}`;
                             // console.log('normalize(branchName):', normalize(branchName));
                             // console.log('sf_token:', token);
                             // console.log('vendorId:', vendorId);
@@ -307,9 +311,14 @@
                                 const targetCode = target?.attributes?.code;
                                 // console.log('targetCode:', targetCode);
 
-                                const URL_OVERRIDE_FOR_TEMPLATE = `https://link.sib360.com/${targetCode}`;
-                                chrome.storage.sync.get(['sms_template'], (d) => {
-                                    const tpl = typeof d['sms_template'] === 'string' ? d['sms_template'] : '';
+                                const hostname = (window.location.hostname || '').replace(/^www\./, '') || '';
+                                chrome.storage.sync.get(['sms_template', 'sms_templates_by_domain', 'link_base_by_domain'], (d) => {
+                                    const byDomain = (d['sms_templates_by_domain'] && typeof d['sms_templates_by_domain'] === 'object') ? d['sms_templates_by_domain'] : {};
+                                    const legacy = typeof d['sms_template'] === 'string' ? d['sms_template'] : '';
+                                    const tpl = (hostname && byDomain[hostname] !== undefined) ? (byDomain[hostname] || '') : (byDomain[''] !== undefined ? (byDomain[''] || '') : legacy);
+                                    const linkBases = (d['link_base_by_domain'] && typeof d['link_base_by_domain'] === 'object') ? d['link_base_by_domain'] : {};
+                                    const base = (hostname && linkBases[hostname]) ? linkBases[hostname].replace(/\/+$/, '') : 'https://link.sib360.com';
+                                    const URL_OVERRIDE_FOR_TEMPLATE = `${base}/${targetCode}`;
                                     if (!tpl) {
                                         showToast('خطا: متن پیامک تنظیم نشده است - لطفاً در تنظیمات متن پیامک را وارد کنید', 'error');
                                         btn.textContent = 'متن تنظیم نشده';
@@ -436,9 +445,14 @@
                     btn2.disabled = true;
                     btn2.textContent = 'در حال پردازش...';
 
-                    const URL_OVERRIDE_FOR_TEMPLATE = `https://link.sib360.com`;
-                    chrome.storage.sync.get(['sms_template'], (d) => {
-                        const tpl = typeof d['sms_template'] === 'string' ? d['sms_template'] : '';
+                    const hostnameAgg = (window.location.hostname || '').replace(/^www\./, '') || '';
+                    chrome.storage.sync.get(['sms_template', 'sms_templates_by_domain', 'link_base_by_domain'], (d) => {
+                        const byDomain = (d['sms_templates_by_domain'] && typeof d['sms_templates_by_domain'] === 'object') ? d['sms_templates_by_domain'] : {};
+                        const legacy = typeof d['sms_template'] === 'string' ? d['sms_template'] : '';
+                        const tpl = (hostnameAgg && byDomain[hostnameAgg] !== undefined) ? (byDomain[hostnameAgg] || '') : (byDomain[''] !== undefined ? (byDomain[''] || '') : legacy);
+                        const linkBases = (d['link_base_by_domain'] && typeof d['link_base_by_domain'] === 'object') ? d['link_base_by_domain'] : {};
+                        const baseAgg = (hostnameAgg && linkBases[hostnameAgg]) ? linkBases[hostnameAgg].replace(/\/+$/, '') : 'https://link.sib360.com';
+                        const URL_OVERRIDE_FOR_TEMPLATE = baseAgg;
                         if (!tpl) {
                             showToast('خطا: متن پیامک تنظیم نشده است - لطفاً در تنظیمات متن پیامک را وارد کنید', 'error');
                             btn2.textContent = 'متن تنظیم نشده';
@@ -522,10 +536,19 @@
     }
 
     function process() {
-        const bodies = findTargetTableBodies();
-        bodies.forEach(tb => {
-            ensureHeaderHasSmsColumn(tb);
-            addButtonsToRows(tb);
+        const hostname = (window.location.hostname || '').replace(/^www\./, '') || '';
+        chrome.storage.sync.get(['sms_template', 'sms_templates_by_domain'], (d) => {
+            const byDomain = (d['sms_templates_by_domain'] && typeof d['sms_templates_by_domain'] === 'object') ? d['sms_templates_by_domain'] : {};
+            const legacy = typeof d['sms_template'] === 'string' ? d['sms_template'] : '';
+            const tpl = (hostname && byDomain[hostname] !== undefined) ? (byDomain[hostname] || '') : (byDomain[''] !== undefined ? (byDomain[''] || '') : legacy);
+            if (!tpl || (typeof tpl === 'string' && tpl.trim() === '')) {
+                return;
+            }
+            const bodies = findTargetTableBodies();
+            bodies.forEach(tb => {
+                ensureHeaderHasSmsColumn(tb);
+                addButtonsToRows(tb);
+            });
         });
     }
 

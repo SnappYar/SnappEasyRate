@@ -146,6 +146,30 @@ This tool simplifies the process of collecting customer feedback and ratings by 
 
 ---
 
+## 📦 ساخت پک افزونه | Building the Extension
+
+- **English:**  
+  To create a zip file for uploading to Chrome (e.g. Chrome Web Store or “Load unpacked” replacement), run the pack script from the project root. It respects `.gitignore` and excludes files that are not needed for the extension package (e.g. `node_modules`, `installation-user`, `README`, logs).
+
+  ```bash
+  chmod +x pack-extension.sh
+  ./pack-extension.sh
+  ```
+
+  Output: `SnappEasyRate-<version>.zip` (version from `manifest.json`). To put the zip in another folder: `./pack-extension.sh dist`
+
+- **فارسی:**  
+  برای ساخت فایل zip جهت آپلود در کروم (مثلاً فروشگاه افزونه یا بارگذاری به‌صورت پک)، از ریشهٔ پروژه اسکریپت پک را اجرا کنید. این اسکریپت قوانین `.gitignore` را رعایت می‌کند و فایل‌های اضافه یا مضر برای پک (مثل `node_modules`، پوشهٔ نصب، README، لاگ‌ها) را داخل zip قرار نمی‌دهد.
+
+  ```bash
+  chmod +x pack-extension.sh
+  ./pack-extension.sh
+  ```
+
+  خروجی: `SnappEasyRate-<نسخه>.zip` (نسخه از `manifest.json`). برای قرار دادن zip در پوشهٔ دیگر: `./pack-extension.sh dist`
+
+---
+
 ## 📄 License | مجوز
 
 - **English:**  

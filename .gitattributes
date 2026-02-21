@@ -1,0 +1,24 @@
+# این فایل‌ها/پوشه‌ها در git archive (zip پک افزونه) قرار نمی‌گیرند.
+/node_modules export-ignore
+/.pnp export-ignore
+.pnp.js export-ignore
+/coverage export-ignore
+opp.js export-ignore
+/build export-ignore
+.DS_Store export-ignore
+.env.local export-ignore
+.env.development.local export-ignore
+.env.test.local export-ignore
+.env.production.local export-ignore
+/logs export-ignore
+logs export-ignore
+/aspnet_client export-ignore
+aspnet_client export-ignore
+.qodo export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+installation-user/ export-ignore
+installation-server/ export-ignore
+README.md export-ignore
+pack-extension.sh export-ignore
+*.zip export-ignore
