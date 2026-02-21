@@ -19,6 +19,7 @@ EXCLUDE_IN_ZIP=(
     "README.md"
     "installation-user"
     "installation-server"
+    "screenshots"
     "pack-extension.sh"
     "*.zip"
 )
@@ -49,6 +50,7 @@ else
         -x "*.log" \
         -x "installation-user/*" \
         -x "installation-server/*" \
+        -x "screenshots/*" \
         -x "*.zip" \
         -x "pack-extension.sh"
 fi

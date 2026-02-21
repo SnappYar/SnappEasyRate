@@ -21,4 +21,5 @@ installation-user/ export-ignore
 installation-server/ export-ignore
 README.md export-ignore
 pack-extension.sh export-ignore
+screenshots/ export-ignore
 *.zip export-ignore
